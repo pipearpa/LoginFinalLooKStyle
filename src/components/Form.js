@@ -1,9 +1,13 @@
 import React, {Component} from "react";
 import axios from 'axios';
-import md5 from 'md5'
+//import md5 from 'md5';
+//const md5 = require('md5');
+import Cookies from 'universal-cookie';
 
 
-const baseUrl="https://web.whatsapp.com/";
+
+const baseUrl="http://localhost:3006/api/v1/users/";
+const cookies = new Cookies();
 
 
 const backgroundStyle = {
@@ -31,7 +35,29 @@ class Form extends Component {
   }
 
   iniciarSesion=async()=>{
-    await axios.get(baseUrl, {params: {name: this.state.form.name, password: md5 (this.state.form.password)}})
+    await axios.get(baseUrl, {params: {name: this.state.form.name, password: this.state.form.password}})
+    .then(response=>{
+      return(response.data);
+    })
+    .then(response=>{
+      if(response.length>0){
+        var respuesta=response[0];
+        cookies.set('id',respuesta.id, {path: "/"});
+        cookies.set('name',respuesta.name, {path: "/"});
+        cookies.set('last_name',respuesta.last_name, {path: "/"});
+        cookies.set('email',respuesta.email, {path: "/"});
+        cookies.set('phone_number',respuesta.id, {path: "/"});
+        cookies.set('save',respuesta.save, {path: "/"});
+        alert(`Bienvenido a lookstyle ${respuesta.name} ${response.last_name}`);
+        window.location.href="./prueba"
+
+      }else{
+        alert('el usuario o la contraseña son incorrectos')
+      }
+    })
+    .catch(error=>{
+      console.log(error);
+    })
   }
 
 
@@ -74,7 +100,7 @@ class Form extends Component {
             </div>
             <div className='mt-6 flex flex-col gap-4'>
               <button
-                className='w-full py-3 md:py-4 bg-violet-500 rounded-xl text-white font-semibold text-lg'>
+                className='w-full py-3 md:py-4 bg-violet-500 rounded-xl text-white font-semibold text-lg' onClick={()=> this.iniciarSesion()}>
                 Iniciar Sesión
               </button>
               <button
@@ -90,7 +116,7 @@ class Form extends Component {
               </button>
             </div>
             <div className='mt-6 flex justify-center items-center'>
-              <p className='text-base'>¿No tienes cuenta? Regístrate</p>
+              <p className='text-base'>¿No tienes cuenta? </p>
               <button className='ml-2 text-base text-violet-500'>Registrarse</button>
             </div>
           </div>
